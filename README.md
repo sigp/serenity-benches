@@ -35,8 +35,8 @@ benchmark and the workings of the function being metered.
 	- Only worry about optimizations that save >10% running time.
 	- Don't be radical with restructuring -- keep it simple.
 - The copied-as-is-from-spec, non-optimized version took 7+ seconds for a state
-	transition. We have it down to .38 seconds and I suspect there's still room
-	for optimisation. Especially if you're more radical with design changes.
+	transition. We have it down to .38 seconds and I know there's still room
+	for optimisation, especially if you're more radical with design changes.
 	This certainly doesn't represent a "best effort" approach to optimisation.
 - Our optimisations are currently focussed towards an all-vaildators-active
 	scenario -- we will likely need to adjust our optimisations to suit a more
@@ -81,7 +81,7 @@ in parallel before verifying each `AttesterSlashing`.
 
 ### Epoch Processing (16,384 validators)
 
-|Benchmark| Time ([Desktop](#desktop)) | Time ([Laptop](#laptop))
+|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
 |-|-|-|
 |  [calculate_active_validator_indices](#calculate_active_validator_indices) | 140.89 μs | 268.46 μs |
 |  [calculate_current_total_balance](#calculate_current_total_balance) | 30.614 μs | 49.481 μs |
@@ -90,7 +90,7 @@ in parallel before verifying each `AttesterSlashing`.
 |  [calculate_attester_sets](#calculate_attester_sets) | 3.8771 ms | 5.4474 ms |
 |  [process_justification](#process_justification) | 22.718 μs | 37.001 μs |
 |  [process_crosslinks](#process_crosslinks) | 1.1468 ms | 1.4062 ms |
-|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 358.64 ms | 1.6063 ms |
+|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 358.64 ms | 1.6063 s |
 |  [*process_ejections](#process_ejections) | 112.86 μs | 226.71 μs |
 |  [*process_validator_registry](#process_validator_registry) | 187.88 μs | 612.63 μs |
 |  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms | 2.7476 μs |
@@ -107,7 +107,7 @@ This is a "worst-case" block. It has the maximum number of all operations. Some
 care was taken to ensure the included operations are as complex as possible,
 however it was not a priority.
 
-|Benchmark| Time ([Desktop](#desktop)) | Time ([Laptop](#laptop))
+|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
 |-|-|-|
 |  [verify_block_signature](#verify_block_signature) | 5.3024 ms | 7.3832 ms |
 |  [process_randao](#process_randao) | 5.2679 ms | 7.2929 ms |
@@ -127,7 +127,7 @@ _* Merkle roots are not verified -- this is a TODO._
 All the previous benchmarks were done with a pre-built committee cache. These
 are the times to build that cache.
 
-|Benchmark| Time ([Desktop](#desktop)) | Time ([Laptop](#laptop))
+|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
 |-|-|-|
 |  [build_previous_state_cache](#cache-builds) | 9.1979 ms | 21.126 ms |
 |  [build_current_state_cache](#cache-builds) | 9.1075 ms | 20.858 ms |
@@ -135,7 +135,7 @@ are the times to build that cache.
 
 ### Tree Hashing
 
-|Benchmark| Time ([Desktop](#desktop)) | Time ([Laptop](#laptop))
+|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
 |-|-|-|
 |  [tree_hash_state](#tree_hash_state) | 81.444 ms | 125.20 ms |
 |  [tree_hash_block](#tree_hash_block) | 3.0570 ms | 4.6171 ms |
