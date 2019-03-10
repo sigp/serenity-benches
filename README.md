@@ -95,7 +95,7 @@ in parallel before verifying each `AttesterSlashing`.
 |  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms | 2.7476 μs |
 |  [update_latest_slashed_balances](#update_latest_slashed_balances) | 21.043 μs | 35.026 μs |
 |  [clean_attestations](#clean_attestations) | 34.500 μs | 57.619 μs |
-|  **[per_epoch_processing](#per_epoch_processing)** | **13.406 ms** | **1.6671 s** |
+|  **[per_epoch_processing](#per_epoch_processing)** | **13.406 ms** | **TODO** |
 
 _* We did not add an ejections or registry changes. These times are best-case
 (not worst-case)._
