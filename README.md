@@ -34,15 +34,53 @@ benchmark and the workings of the function being metered.
 	- Only worry about optimizations that save ~10% running time.
 	- Don't be radical with restructuring -- keep it simple.
 - The copied-as-is-from-spec, non-optimized version took 7+ seconds for a state
-	transition. We have it down to .38 seconds and I suspect there's still
-	room for optimisation, especially if you're more radical with optimisations.
+	transition. We have it down to .38 seconds and I suspect there's still room
+	for optimisation, especially if you're more radical. This certainly doesn't
+	represent a "best effort" approach to optimisation.
+- Our optimisations are currently focussed towards an all-vaildators-active
+	scenario -- we will likely need to adjust our optimisations to suit a more
+	diverse set of scenarios.
+
+## Lessons Learned
+
+Here we share the lessons we learned during optimisation. We hope this
+information will save time for other implementers.
+
+### Per-Epoch Processing
+
+We found it useful to consider rewards and penalties as a map against
+`state.validator_balances`. This allowed us to very easily use
+[rayon](https://github.com/rayon-rs/rayon) to do this map concurrently. I
+imagine most other languages have an equivalent library. The specification is
+well designed for this purpose -- updating one validator's balance only mutates
+state related to that validator.
+
+Where we found speed improvements:
+
+- Using hashsets for rewards and penalties. This is an obvious one, but you can
+	very quickly get into boggy territory if you're testing that a
+	validator is a current boundary attester by scanning through all current
+	boundary attesters.
+- Processing the validator rewards in parallel (as mentioned earlier).
+- Replacing multiple calls to `inclusion_distance` with a single iteration over
+	`previous_epoch_attestations` which produces a map of `ValidatorIndex ->
+	SlotIncluded`. This shaved ~1.5 seconds from per-epoch processing.
+
+### Per-Block Processing
+
+All notable gains here were from introducing concurrency where hashing or
+signature verification is involved.
+
+We found a ~50% increase in
+processing `AttesterSlashings` by first verifying all `SlashableAttestations`
+in parallel before verifying each `AttesterSlashing`.
 
 
 ## Results:
 
 ### Epoch Processing (16,384 validators)
 
-|Benchmark| Time (Desktop) |
+|Benchmark| Time ([Desktop](#desktop)) |
 |-|-|
 |  [calculate_active_validator_indices](#calculate_active_validator_indices) | 140.89 μs |
 |  [calculate_current_total_balance](#calculate_current_total_balance) | 30.614 μs |
@@ -52,12 +90,15 @@ benchmark and the workings of the function being metered.
 |  [process_justification](#process_justification) | 22.718 μs |
 |  [process_crosslinks](#process_crosslinks) | 1.1468 ms |
 |  [process_rewards_and_penalties](#process_rewards_and_penalties) | 358.64 ms |
-|  [process_ejections](#process_ejections) | 112.86 μs |
-|  [process_validator_registry](#process_validator_registry) | 187.88 μs |
+|  [*process_ejections](#process_ejections) | 112.86 μs |
+|  [*process_validator_registry](#process_validator_registry) | 187.88 μs |
 |  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms |
 |  [update_latest_slashed_balances](#update_latest_slashed_balances) | 21.043 μs |
 |  [clean_attestations](#clean_attestations) | 34.500 μs |
 |  **[per_epoch_processing](#per_epoch_processing)** | **383.95 ms** |
+
+_* We did not add an ejections or registry changes. These times are best-case
+(not worst-case)._
 
 ### Block Processing (16,384 validators)
 
@@ -65,7 +106,7 @@ This is a "worst-case" block. It has the maximum number of all operations. Some
 care was taken to ensure the included operations are as complex as possible,
 however it was not a priority.
 
-|Benchmark| Time (Desktop) |
+|Benchmark| Time ([Desktop](#desktop)) |
 |-|-|
 |  [verify_block_signature](#verify_block_signature) | 5.3024 ms |
 |  [process_randao](#process_randao) | 5.2679 ms |
@@ -83,15 +124,22 @@ however it was not a priority.
 All the previous benchmarks were done with a pre-built committee cache. These
 are the times to build that cache.
 
-|Benchmark| Time (Desktop) |
+|Benchmark| Time ([Desktop](#desktop)) |
 |-|-|
-|  build_previous_state_cache | 9.1979 ms |
-|  build_current_state_cache | 9.1075 ms |
+|  [build_previous_state_cache](#cache-builds) | 9.1979 ms |
+|  [build_current_state_cache](#cache-builds) | 9.1075 ms |
 
+
+### Tree Hashing
+
+|Benchmark| Time ([Desktop](#desktop)) |
+|-|-|
+|  [tree_hash_state](#tree_hash_state) | 81.444 ms |
+|  [tree_hash_block](#tree_hash_block) | 3.0570 ms |
+
+# Details
 
 ## Per-Epoch Processing
-
-
 
 ## `calculate_active_validator_indices`
 
@@ -534,3 +582,49 @@ execution returns immediately.
 1. Processes deposits.
 1. Processes exits.
 1. Processes transfers.
+
+## Cache Builds
+
+Our epoch caches are on a per-epoch basis and contain:
+
+- Each committee for each slot of the epoch.
+- A map of `ValidatorIndex -> (AttestationSlot, AttestationShard,
+	CommitteeIndex)` for easy access of a validator's attestation duties.
+- A map of `Shard -> (EpochCommitteesIndex, SlotCommitteesIndex)` for easy
+	access of a shard's committee.
+
+## Tree Hashing
+
+## `tree_hash_state`
+
+#### Benching Setup
+
+Function is run with the following inputs:
+
+- The state which is used in the epoch processing tests.
+	See [per_epoch_processing](#per_epoch_processing) for details.
+
+#### Function Description
+
+1. Hashes as per the [tree hash](https://github.com/ethereum/eth2.0-specs/blob/v0.4.0/specs/simple-serialize.md#tree-hash) spec.
+
+## `tree_hash_block`
+
+#### Benching Setup
+
+Function is run with the following inputs:
+
+- The block which is used in the block processing tests.
+	See [per_block_processing](#per_block_processing) for details.
+
+#### Function Description
+
+1. Hashes as per the [tree hash](https://github.com/ethereum/eth2.0-specs/blob/v0.4.0/specs/simple-serialize.md#tree-hash) spec.
+
+## Computer Details
+
+### Desktop
+
+- Arch Linux
+- 6-core [i7-8700K](https://ark.intel.com/content/www/us/en/ark/products/126684/intel-core-i7-8700k-processor-12m-cache-up-to-4-70-ghz.html).
+- 16gb DDR4 2400 Mhz.
