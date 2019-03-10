@@ -89,13 +89,13 @@ in parallel before verifying each `AttesterSlashing`.
 |  [calculate_attester_sets](#calculate_attester_sets) | 3.8771 ms | 5.4474 ms |
 |  [process_justification](#process_justification) | 22.718 μs | 37.001 μs |
 |  [process_crosslinks](#process_crosslinks) | 1.1468 ms | 1.4062 ms |
-|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 358.64 ms | 1.6063 s |
+|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 5.4836 ms | **TODO** s |
 |  [*process_ejections](#process_ejections) | 112.86 μs | 226.71 μs |
 |  [*process_validator_registry](#process_validator_registry) | 187.88 μs | 612.63 μs |
 |  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms | 2.7476 μs |
 |  [update_latest_slashed_balances](#update_latest_slashed_balances) | 21.043 μs | 35.026 μs |
 |  [clean_attestations](#clean_attestations) | 34.500 μs | 57.619 μs |
-|  **[per_epoch_processing](#per_epoch_processing)** | **383.95 ms** | **1.6671 s** |
+|  **[per_epoch_processing](#per_epoch_processing)** | **13.406 ms** | **1.6671 s** |
 
 _* We did not add an ejections or registry changes. These times are best-case
 (not worst-case)._
