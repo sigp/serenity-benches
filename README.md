@@ -2,9 +2,8 @@
 
 TODO:
 
-- Ensure deposit merkle root is verified.
+- Add deposit merkle root verification?
 - Add some ejections?
-- Add tree hash for state root.
 
 
 This document contains the results of running benchmarks on the
