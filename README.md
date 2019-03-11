@@ -1,18 +1,18 @@
 # Serenity Benches
 
-TODO:
-
-- Add deposit merkle root verification?
-- Add some ejections/validator registry changes?
-- How to run tests.
-- Add some reference measurements for BLS ops
-
 
 This document contains the results of running benchmarks on the
 [Lighthouse](http://github.com/sigp/ligthouse) Eth2.0 client.
 
 For each benchmark, it contains a description of the parameters supplied to the
 benchmark and the workings of the function being metered.
+
+## TODO
+
+- Add deposit merkle root verification?
+- Add some ejections/validator registry changes?
+- How to run tests.
+- Add some reference measurements for BLS ops
 
 
 ## Info/Disclaimers:
