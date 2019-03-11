@@ -3,7 +3,8 @@
 TODO:
 
 - Add deposit merkle root verification?
-- Add some ejections?
+- Add some ejections/validator registry changes?
+- How to run tests.
 
 
 This document contains the results of running benchmarks on the
@@ -78,66 +79,75 @@ in parallel before verifying each `AttesterSlashing`.
 
 ## Results:
 
-### Epoch Processing (16,384 validators)
+There are three scenarios benched. Each should be exactly the same, except the
+validator count is changed. The following codes map to each scenario:
 
-|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
-|-|-|-|
-|  [calculate_active_validator_indices](#calculate_active_validator_indices) | 140.89 μs | 268.46 μs |
-|  [calculate_current_total_balance](#calculate_current_total_balance) | 30.614 μs | 49.481 μs |
-|  [calculate_previous_total_balance](#calculate_previous_total_balance) | 95.817 μs | 215.32 μs |
-|  [process_eth1_data](#process_eth1_data) | 20.497 μs | 37.950 μs |
-|  [calculate_attester_sets](#calculate_attester_sets) | 3.8771 ms | 5.4474 ms |
-|  [process_justification](#process_justification) | 22.718 μs | 37.001 μs |
-|  [process_crosslinks](#process_crosslinks) | 1.1468 ms | 1.4062 ms |
-|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 5.4836 ms | **TODO** s |
-|  [*process_ejections](#process_ejections) | 112.86 μs | 226.71 μs |
-|  [*process_validator_registry](#process_validator_registry) | 187.88 μs | 612.63 μs |
-|  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms | 2.7476 μs |
-|  [update_latest_slashed_balances](#update_latest_slashed_balances) | 21.043 μs | 35.026 μs |
-|  [clean_attestations](#clean_attestations) | 34.500 μs | 57.619 μs |
-|  **[per_epoch_processing](#per_epoch_processing)** | **13.406 ms** | **TODO** |
+- **16K**: 16,384 validators (all active).
+- **300K**: 300,032 validators (all active).
+
+_Note: we use validator counts divisible by 64 to simplify the "is this
+block maximally full" logic._
+
+### Epoch Processing
+
+|Benchmark| 16K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Desktop](#desktop) | 300K [Laptop](#laptop)
+|-|-|-|-|-|
+|  [calculate_active_validator_indices](#calculate_active_validator_indices) | 140.89 μs | 153.13 μs | 3.9355 ms | 2.8901 ms |
+|  [calculate_current_total_balance](#calculate_current_total_balance) | 14.087 μs | 14.090 μs | 304.17 μs | 280.96 μs |
+|  [calculate_previous_total_balance](#calculate_previous_total_balance) | 204.14 μs | 172.46 μs | 3.5050 ms | 3.1978 ms |
+|  [process_eth1_data](#process_eth1_data) | 294.34 ns | 415.11 ns | 1.1548 μs | 1.3387 μs |
+|  [calculate_attester_sets](#calculate_attester_sets) | 3.8771 ms | 5.2656 ms | 85.200 ms | 155.19 ms |
+|  [process_justification](#process_justification) | 376.01 ns | 411.57 ns | 1.2140 μs | 1.3773 μs |
+|  [process_crosslinks](#process_crosslinks) | 1.0204 ms | 1.2308 ms | 23.018 ms | 39.095 ms |
+|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 4.7026 ms | 6.6932 ms | 126.81 ms | 207.19 ms |
+|  [*process_ejections](#process_ejections) | 187.60 μs | 171.52 μs | 3.2257 ms | 3.0041 ms |
+|  [*process_validator_registry](#process_validator_registry) | 187.88 μs | 459.66 μs | 10.255 ms | 9.9943 ms |
+|  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms | 2.4711 μs | 36.961 ms | 46.122 ms |
+|  [*update_latest_slashed_balances](#update_latest_slashed_balances) | 460.09 μs | 442.95 ns | 952.32 ns | 1.3709 μs |
+|  [clean_attestations](#clean_attestations) | 23.615 μs | 28.675 μs | 188.14 ms | 248.50 μs |
+|  **[per_epoch_processing](#per_epoch_processing)** | **12.548 ms** | **17.514 ms** | **307.02 ms** | **505.59 ms** |
 
 _* We did not add an ejections or registry changes. These times are best-case
 (not worst-case)._
 
-### Block Processing (16,384 validators)
+### Block Processing
 
 This is a "worst-case" block. It has the maximum number of all operations. Some
 care was taken to ensure the included operations are as complex as possible,
 however it was not a priority.
 
-|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
-|-|-|-|
-|  [verify_block_signature](#verify_block_signature) | 5.3024 ms | 7.3832 ms |
-|  [process_randao](#process_randao) | 5.2679 ms | 7.2929 ms |
-|  [process_eth1_data](#process_eth1_data) | 17.342 μs | 30.884 μs |
-|  [process_proposer_slashings](#process_proposer_slashings) | 37.108 ms | 121.26 ms |
-|  [process_attester_slashings](#process_attester_slashings) | 147.83 ms | 216.30 ms |
-|  [process_attestations](#process_attestations) | 193.86 ms | 848.10 ms |
-|  [*process_deposits](#process_deposits) | 53.734 ms | 117.76 ms |
-|  [process_exits](#process_exits) | 19.022 ms | 61.203 ms |
-|  [process_transfers](#process_transfers) | 18.686 ms | 61.595 ms |
-|  [**per_block_processing**](#per_block_processing) | **478.98 ms** | **1.4540 s** |
+|Benchmark| 16K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Desktop](#desktop) | 300K [Laptop](#laptop)
+|-|-|-|-|-|
+|  [verify_block_signature](#verify_block_signature) | 5.3024 ms | 7.1359 ms | - | - |
+|  [process_randao](#process_randao) | 5.2679 ms | 7.0675 ms | - | - |
+|  [process_eth1_data](#process_eth1_data) | 229.31 ns | 330.12 ns | 1.4178 μs | 1.5468 μs |
+|  [process_proposer_slashings](#process_proposer_slashings) | 37.108 ms | 119.46 ms | - | - |
+|  [process_attester_slashings](#process_attester_slashings) | 147.83 ms | 211.74 ms | - | - |
+|  [process_attestations](#process_attestations) | 193.86 ms | 833.23 ms | 309.15ms | 1.3424 s |
+|  [*process_deposits](#process_deposits) | 53.734 ms | 104.45 ms | 699.91 ms | 1.0609 s |
+|  [process_exits](#process_exits) | 18.835 ms | 60.163 ms | - | - |
+|  [process_transfers](#process_transfers) | 18.686 ms | 60.163 ms | - | - |
+|  [**per_block_processing**](#per_block_processing) | **478.98 ms** | **1.4317 s** | **1.2419 s** | **2.8399 s** |
 
 _* Merkle roots are not verified -- this is a TODO._
 
-### Cache Builds (16,384 validators)
+### Cache Builds
 
 All the previous benchmarks were done with a pre-built committee cache. These
 are the times to build that cache.
 
-|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
-|-|-|-|
-|  [build_previous_state_cache](#cache-builds) | 9.1979 ms | 21.126 ms |
-|  [build_current_state_cache](#cache-builds) | 9.1075 ms | 20.858 ms |
+|Benchmark| 16K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Desktop](#desktop) | 300K [Laptop](#laptop) |
+|-|-|-|-|-|
+|  [build_previous_state_cache](#cache-builds) | 9.1979 ms | 18.480 ms | 373.84 ms | 396.56 ms |
+|  [build_current_state_cache](#cache-builds) | 9.1075 ms | 19.412 ms | 356.68 ms | 402.96 ms |
 
 
 ### Tree Hashing
 
-|Benchmark| [Desktop](#desktop) | [Laptop](#laptop)
-|-|-|-|
-|  [tree_hash_state](#tree_hash_state) | 81.444 ms | 125.20 ms |
-|  [tree_hash_block](#tree_hash_block) | 3.0570 ms | 4.6171 ms |
+|Benchmark| 16K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Desktop](#desktop) | 300K [Laptop](#laptop) |
+|-|-|-|-|-|
+|  [tree_hash_state](#tree_hash_state) | 81.444 ms | 121.80 ms | 1.3884 s | 1.8679 s |
+|  [tree_hash_block](#tree_hash_block) | 3.0570 ms | 4.5881 ms | 3.4629 ms | 4.7180 ms
 
 # Details
 
