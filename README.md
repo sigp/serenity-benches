@@ -43,41 +43,6 @@ benchmark and the workings of the function being metered.
 	scenario -- we will likely need to adjust our optimisations to suit a more
 	diverse set of scenarios.
 
-## Lessons Learned
-
-Here we share the lessons we learned during optimisation. We hope this
-information will save time for other implementers.
-
-### Per-Epoch Processing
-
-We found it useful to consider rewards and penalties as a map against
-`state.validator_balances`. This allowed us to very easily use
-[rayon](https://github.com/rayon-rs/rayon) to do this map concurrently. I
-imagine most other languages have an equivalent library. The specification is
-well designed for this purpose -- updating one validator's balance only mutates
-state related to that validator.
-
-Where we found speed improvements:
-
-- Using hashsets for rewards and penalties. This is an obvious one, but you can
-	very quickly get into boggy territory if you're testing that a
-	validator is a current boundary attester by scanning through all current
-	boundary attesters.
-- Processing the validator rewards in parallel (as mentioned earlier).
-- Replacing multiple calls to `inclusion_distance` with a single iteration over
-	`previous_epoch_attestations` which produces a map of `ValidatorIndex ->
-	SlotIncluded`. This shaved ~1.5 seconds from per-epoch processing.
-
-### Per-Block Processing
-
-All notable gains here were from introducing concurrency where hashing or
-signature verification is involved.
-
-We found a ~50% increase in
-processing `AttesterSlashings` by first verifying all `SlashableAttestations`
-in parallel before verifying each `AttesterSlashing`.
-
-
 ## Results:
 
 There are three scenarios benched. Each should be exactly the same, except the
@@ -149,6 +114,39 @@ are the times to build that cache.
 |-|-|-|-|-|
 |  [tree_hash_state](#tree_hash_state) | 81.444 ms | 1.3884 s | 121.80 ms | 1.8679 s |
 |  [tree_hash_block](#tree_hash_block) | 3.0570 ms | 3.4629 ms | 4.5881 ms | 4.7180 ms |
+
+## Lessons Learned
+
+Here we share the lessons we learned during optimisation. We hope this
+information will save time for other implementers.
+
+### Per-Epoch Processing
+
+We found it useful to consider rewards and penalties as a map against
+`state.validator_balances`. This allowed us to very easily use
+[rayon](https://github.com/rayon-rs/rayon) to do this map concurrently. I
+imagine most other languages have an equivalent library. The specification is
+well designed for this purpose -- updating one validator's balance only mutates
+state related to that validator.
+
+Where we found speed improvements:
+
+- Processing the validator rewards in parallel (as mentioned earlier).
+- Obviously, removing all `O(n^2)` time blow-ups. This means using hashsets for
+	checking if a validator is a member of some subset of validators.
+- Replacing multiple calls to `inclusion_distance` with a single iteration over
+	`previous_epoch_attestations` which produces a map of `ValidatorIndex ->
+	SlotIncluded`. This shaved ~1.5 seconds from per-epoch processing.
+
+### Per-Block Processing
+
+All notable gains here were from introducing concurrency where hashing or
+signature verification is involved.
+
+We found a ~50% increase in
+processing `AttesterSlashings` by first verifying all `SlashableAttestations`
+in parallel before verifying each `AttesterSlashing`.
+
 
 # Details
 
