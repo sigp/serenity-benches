@@ -58,7 +58,7 @@ block maximally full" logic._
 
 |Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop)
 |-|-|-|-|-|
-|  [calculate_active_validator_indices](#calculate_active_validator_indices) | 140.89 μs 3.9355 ms | 153.13 μs | | 2.8901 ms |
+|  [calculate_active_validator_indices](#calculate_active_validator_indices) | 140.89 μs | 3.9355 ms | 153.13 μs | | 2.8901 ms |
 |  [calculate_current_total_balance](#calculate_current_total_balance) | 14.087 μs | 304.17 μs | 14.090 μs | 280.96 μs |
 |  [calculate_previous_total_balance](#calculate_previous_total_balance) | 204.14 μs | 3.5050 ms | 172.46 μs | 3.1978 ms |
 |  [process_eth1_data](#process_eth1_data) | 294.34 ns | 1.1548 μs | 415.11 ns | 1.3387 μs |
