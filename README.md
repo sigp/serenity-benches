@@ -74,7 +74,7 @@ validators hasn't changed from the value for 16k validators._
 |  [*process_validator_registry](#process_validator_registry) | 187.88 μs | 10.255 ms | 459.66 μs | 9.9943 ms |
 |  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms | 36.961 ms | 2.4711 μs | 46.122 ms |
 |  [*update_latest_slashed_balances](#update_latest_slashed_balances) | 460.09 μs | 952.32 ns | 442.95 ns | 1.3709 μs |
-|  [clean_attestations](#clean_attestations) | 23.615 μs | 188.14 ms | 28.675 μs | 248.50 μs |
+|  [clean_attestations](#clean_attestations) | 23.615 μs | 188.14 μs | 28.675 μs | 248.50 μs |
 |  **[per_epoch_processing](#per_epoch_processing)** | **12.548 ms** | **307.02 ms** | **17.514 ms** | **505.59 ms** |
 
 _* We did not add an ejections or registry changes. These times are best-case
@@ -94,10 +94,10 @@ however it was not a priority.
 |  [process_proposer_slashings](#process_proposer_slashings) | 37.108 ms | - | 119.46 ms | - |
 |  [process_attester_slashings](#process_attester_slashings) | 147.83 ms | - | 211.74 ms | - |
 |  [process_attestations](#process_attestations) | 193.86 ms | 309.15ms | 833.23 ms | 1.3424 s |
-|  [*process_deposits](#process_deposits) | 53.734 ms | 699.91 ms | 104.45 ms | 1.0609 s |
+|  [*process_deposits](#process_deposits) | 31.918 ms | 288.21 ms | 79.386 ms | 436.96 ms |
 |  [process_exits](#process_exits) | 18.835 ms | - | 60.163 ms | - |
 |  [process_transfers](#process_transfers) | 18.686 ms | - | 60.163 ms | - |
-|  [**per_block_processing**](#per_block_processing) | **478.98 ms** | **1.2419 s** | **1.4317 s** | **2.8399 s** |
+|  [**per_block_processing**](#per_block_processing) | **461.65 ms** | **833.80 ms** | **1.3885 s** | **2.2294 s** |
 
 _* Merkle roots are not verified -- this is a TODO._
 
