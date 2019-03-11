@@ -36,7 +36,7 @@ benchmark and the workings of the function being metered.
 	- Only worry about optimizations that save >10% running time.
 	- Don't be radical with restructuring -- keep it simple.
 - The copied-as-is-from-spec, non-optimized version took 7+ seconds for a state
-	transition. We have it down to .38 seconds and I know there's still room
+	transition. We have it down to .12 seconds and I know there's still room
 	for optimisation, especially if you're more radical with design changes.
 	This certainly doesn't represent a "best effort" approach to optimisation.
 - Our optimisations are currently focussed towards an all-vaildators-active
