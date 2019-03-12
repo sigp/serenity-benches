@@ -127,7 +127,7 @@ This is a full tree-hash without caching.
 This is a full tree-hash without caching.
 
 |Benchmark| [Desktop](#desktop) | [Laptop](#laptop) |
-|-|-|-|-|-|
+|-|-|-|
 |  verify_a_signature | 5.2158 ms | 6.7476 ms |
 |  aggregate_a_public_key | 32.311 μs |42.000 μs
 
