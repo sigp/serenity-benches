@@ -121,6 +121,16 @@ This is a full tree-hash without caching.
 |  [tree_hash_state](#tree_hash_state) | 81.444 ms | 1.3884 s | 121.80 ms | 1.8679 s |
 |  [tree_hash_block](#tree_hash_block) | 3.0570 ms | 3.4629 ms | 4.5881 ms | 4.7180 ms |
 
+
+### BLS
+
+This is a full tree-hash without caching.
+
+|Benchmark| [Desktop](#desktop) | [Laptop](#laptop) |
+|-|-|-|-|-|
+|  verify_a_signature | 5.2158 ms | 6.7476 ms |
+|  aggregate_a_public_key | 32.311 μs |42.000 μs
+
 ## Lessons Learned
 
 Here we share the lessons we learned during optimisation. We hope this
