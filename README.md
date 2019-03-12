@@ -124,8 +124,6 @@ This is a full tree-hash without caching.
 
 ### BLS
 
-This is a full tree-hash without caching.
-
 |Benchmark| [Desktop](#desktop) | [Laptop](#laptop) |
 |-|-|-|
 |  verify_a_signature | 5.2158 ms | 6.7476 ms |
