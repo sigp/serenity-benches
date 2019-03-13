@@ -136,6 +136,8 @@ This is a full tree-hash without caching.
 |-|-|-|
 |  verify_a_signature | 5.2158 ms | 6.7476 ms |
 |  aggregate_a_public_key | 32.311 μs |42.000 μs
+|  pubkey_from_uncompressed_bytes | 826.60 ns | NA
+|  pubkey_from_compressed_bytes |  39.934 μs | NA
 
 ## Lessons Learned
 
