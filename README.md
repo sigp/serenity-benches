@@ -1,5 +1,13 @@
 # Serenity Benches
 
+Table of Contents:
+
+- [Results](#results)
+- [Per-epoch processing details](#per-epoch-processing-1)
+- [Per-block processing details](#per-block-processing-1)
+- [Computer details](#computer-details)
+- [Running the benchmarks](#running-the-benchmarks)
+
 
 This document contains the results of running benchmarks on the
 [Lighthouse](http://github.com/sigp/ligthouse) Eth2.0 client.
@@ -660,3 +668,55 @@ Function is run with the following inputs:
 - Arch Linux
 - 2-core [i5 7300U](https://ark.intel.com/content/www/us/en/ark/products/97472/intel-core-i5-7300u-processor-3m-cache-up-to-3-50-ghz.html)
 - 16GB LPDDR3 1866 Mhz.
+
+
+## Running the benchmarks
+
+You can run these benchmarks on your local machine if you're an advanced user. There are three main steps:
+
+1. **Setup the repo** by cloning it and ensuring you have all the deps.
+1. **Generate a file of keypairs** to speed-up the setup for the benches. This can
+   be skipped but it will greatly increase your setup time (e.g., it takes
+   5 mins to generate 4M keypairs on 6-cores however it takes 1s to read them
+   from file.)
+1. **Run the benches**
+
+### 1. Setup the repo
+
+1. Clone the https://github.com/sigp/lighthouse repo at `master`.
+1. Follow the [Running](https://github.com/sigp/lighthouse#running)
+   instructions. You just need a standard Rust setup (`rustup`) and
+   additionally `clang` and `protobuf`.
+1. Check you can build by running the tests: `$ cargo test --all`
+
+### 2. Generate the keypairs file
+
+This will create the following file: `$HOME/.lighthouse/keypairs.raw_keypairs`.
+It contains uncompressed, unencrypted BLS keypairs and massively speeds up setup
+times for benches.
+
+1. Navigate to `beacon_node/beacon_chain/test_harness`
+1. Run `cargo run --release -- gen_keys -n KEYS` where `KEYS` is the maximum
+   number of validators you wish to bench with. You'll get a panic during
+   benches if your keyfile isn't big enough.
+
+_Note: if you omit `--release` key generation will be very slow._
+
+_Note: it takes my [desktop](#desktop) 5 minutes to build 4M keys._
+
+### 3. Run the benches
+
+1. Navigate to `eth2/state_processing`
+1. Run `cargo bench`
+
+_Note: you can filter benches. Using `cargo bench block` will only run benches
+where `block` is in the title._
+
+If you want to change the number of validators, change the
+['VALIDATOR_COUNT'](https://github.com/sigp/lighthouse/blob/efd56ebe375c73dd658e7c86c50a5431e22ad77f/eth2/state_processing/benches/benches.rs#L10)
+variable. Note, if you don't pick your number of validators correctly you might
+get a panic about "Each attestation in the state should have full
+participation" from [this
+assertion](https://github.com/sigp/lighthouse/blob/efd56ebe375c73dd658e7c86c50a5431e22ad77f/eth2/state_processing/benches/bench_epoch_processing.rs#L55-L59).
+Either choose a validator count that works for that assertion, or comment it
+out.
