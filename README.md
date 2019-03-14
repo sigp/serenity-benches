@@ -151,7 +151,7 @@ caches. These are the times to build those caches.
 
 |Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) | 4M [Desktop](#desktop)
 |-|-|-|-|-|-|
-|  [build_epoch_committee_cache](#epoch-cache-builds) | 7.4939 ms | 264.02 ms | 19.412 ms | 402.96 ms | 3.9832 s |
+|  [build_epoch_committee_cache](#epoch-cache-builds) | 7.4939 ms | 264.02 ms | 14.477 ms | 323.01 ms | 3.9832 s |
 |  [build_pubkey_cache](#pubkey-cache-builds) | 14.874 ms | 339.41 ms | 30.178 ms | 488.15 ms | 5.0710 s |
 
 _Note: I once benched shuffling 4M validators at 1.2s. Epoch cache build times
