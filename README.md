@@ -700,8 +700,10 @@ times for benches.
 
 1. Navigate to `beacon_node/beacon_chain/test_harness`
 1. Run `cargo run --release -- gen_keys -n KEYS` where `KEYS` is the maximum
-   number of validators you wish to bench with. You'll get a panic during
-   benches if your keyfile isn't big enough.
+   number of validators you wish to bench with. If your keypairs file isn't big
+   enough you'll get a panic about being
+   unable to fill a buffer during
+   benching.
 
 _Note: if you omit `--release` key generation will be very slow._
 
@@ -717,9 +719,4 @@ where `block` is in the title._
 
 If you want to change the number of validators, change the
 ['VALIDATOR_COUNT'](https://github.com/sigp/lighthouse/blob/efd56ebe375c73dd658e7c86c50a5431e22ad77f/eth2/state_processing/benches/benches.rs#L10)
-variable. Note, if you don't pick your number of validators correctly you might
-get a panic about "Each attestation in the state should have full
-participation" from [this
-assertion](https://github.com/sigp/lighthouse/blob/efd56ebe375c73dd658e7c86c50a5431e22ad77f/eth2/state_processing/benches/bench_epoch_processing.rs#L55-L59).
-Either choose a validator count that works for that assertion, or comment it
-out.
+variable.
