@@ -1,6 +1,12 @@
 # Serenity Benches
 
-Table of Contents:
+This document contains the results of running benchmarks on the
+[Lighthouse](http://github.com/sigp/ligthouse) Eth2.0 client.
+
+For each benchmark, it contains a description of the parameters supplied to the
+benchmark and the workings of the function being metered.
+
+## Table of Contents:
 
 - [Results](#results)
 - [Per-epoch processing details](#per-epoch-processing-1)
@@ -9,44 +15,21 @@ Table of Contents:
 - [Running the benchmarks](#running-the-benchmarks)
 
 
-This document contains the results of running benchmarks on the
-[Lighthouse](http://github.com/sigp/ligthouse) Eth2.0 client.
-
-For each benchmark, it contains a description of the parameters supplied to the
-benchmark and the workings of the function being metered.
-
-## TODO
-
-- Add deposit merkle root verification?
-- Add some ejections/validator registry changes?
-- How to run tests.
-- Add some reference measurements for BLS ops
-
-
 ## Info/Disclaimers:
 
 - All benchmarks were performed using the
 	[Lighthouse](http://github.com/sigp/ligthouse) Eth2 client (Rust).
+- The majority of these are stress-tests -- they're worst case scenarios.
 - Benchmarks are not limited to a single-core -- concurrent functions will run
 	across multiple cores.
 - These benchmarks are up-to-date with spec [v0.4.0](https://github.com/ethereum/eth2.0-specs/tree/v0.4.0).
-- It is almost a certainty that this implementation has bugs -- test vectors
+- It is almost a certainty that this implementation will have bugs -- test vectors
 	for these functions are soon-to-be-released, until then it is very difficult
 	to find bugs.
-- There has been only a small amount of effort taken to optimise this code.
-- This is our rough
-	optimization ethos:
-	- Use concurrency if it's easy.
-	- Try and use hash maps/sets to reduce CPU time.
-	- Don't be concerned about memory allocation (do that later).
-	- Don't be concerned about detailed language/compiler/architecture
-		optimisations (do that later).
-	- Only worry about optimizations that save >10% running time.
-	- Don't be radical with restructuring -- keep it simple.
-- The copied-as-is-from-spec, non-optimized version took 7+ seconds for a state
-	transition. We have it down to .12 seconds and I know there's still room
-	for optimisation, especially if you're more radical with design changes.
-	This certainly doesn't represent a "best effort" approach to optimisation.
+- All benches are purely functional -- there are no "read from disk" or "fetch
+	from network" times included.
+- There has been only a mild amount of effort taken to optimise this code.
+	There's likely a lot of room for improvement.
 - Our optimisations are currently focussed towards an all-vaildators-active
 	scenario -- we will likely need to adjust our optimisations to suit a more
 	diverse set of scenarios.
@@ -59,65 +42,110 @@ validator count is changed. The following codes map to each scenario:
 - **16K**: 16,384 validators (all active).
 - **300K**: 300,032 validators (all active).
 
-_Note: we use validator counts divisible by 64 to simplify the "is this
-block maximally full" logic._
-
 _Note: when a result is `-` it means the value has not changed since the
 benchmark with the next smallest validator count. E.g., the value for 300k
 validators hasn't changed from the value for 16k validators._
 
 ### Epoch Processing
 
-|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop)
-|-|-|-|-|-|
-|  [calculate_active_validator_indices](#calculate_active_validator_indices) | 140.89 μs | 3.9355 ms | 153.13 μs | 2.8901 ms |
-|  [calculate_current_total_balance](#calculate_current_total_balance) | 14.087 μs | 304.17 μs | 14.090 μs | 280.96 μs |
-|  [calculate_previous_total_balance](#calculate_previous_total_balance) | 204.14 μs | 3.5050 ms | 172.46 μs | 3.1978 ms |
-|  [process_eth1_data](#process_eth1_data) | 294.34 ns | 1.1548 μs | 415.11 ns | 1.3387 μs |
-|  [calculate_attester_sets](#calculate_attester_sets) | 3.8771 ms | 85.200 ms | 5.2656 ms | 155.19 ms |
-|  [process_justification](#process_justification) | 376.01 ns | 1.2140 μs | 411.57 ns | 1.3773 μs |
-|  [process_crosslinks](#process_crosslinks) | 1.0204 ms | 23.018 ms | 1.2308 ms | 39.095 ms |
-|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 4.7026 ms | 126.81 ms | 6.6932 ms | 207.19 ms |
-|  [*process_ejections](#process_ejections) | 187.60 μs | 3.2257 ms | 171.52 μs | 3.0041 ms |
-|  [*process_validator_registry](#process_validator_registry) | 187.88 μs | 10.255 ms | 459.66 μs | 9.9943 ms |
-|  [update_active_tree_index_roots](#update_active_tree_index_roots) | 1.8973 ms | 36.961 ms | 2.4711 μs | 46.122 ms |
-|  [*update_latest_slashed_balances](#update_latest_slashed_balances) | 460.09 μs | 952.32 ns | 442.95 ns | 1.3709 μs |
-|  [clean_attestations](#clean_attestations) | 23.615 μs | 188.14 μs | 28.675 μs | 248.50 μs |
-|  **[per_epoch_processing](#per_epoch_processing)** | **12.548 ms** | **307.02 ms** | **17.514 ms** | **505.59 ms** |
+### Desktop
+
+|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop)
+|-|-|-|
+|  [process_eth1_data](#process_eth1_data) | 294.34 ns | 1.1548 μs
+|  [initialize_validator_statuses](#initialize_validator_statuses) | 982.77 μs | 33.931 ms
+|  [process_justification](#process_justification) | 276.59 ns | 1.2140 μs
+|  [process_crosslinks](#process_crosslinks) | 1.0204 ms | 30.306 ms
+|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 804.03 μs | 15.609 ms
+|  *[process_ejections](#process_ejections) | 187.60 μs | 3.2257 ms
+|  *[process_validator_registry](#process_validator_registry) | 187.88 μs | 8.2305 ms
+|  ^[update_active_tree_index_roots](#update_active_tree_index_roots) | 3.0462 ms | 82.961 ms
+|  *[update_latest_slashed_balances](#update_latest_slashed_balances) | 400.25 ns | 952.32 ns
+|  [clean_attestations](#clean_attestations) | 23.615 μs | 322.11 μs
+|  **[per_epoch_processing](#per_epoch_processing)** | **6.4554 ms** | **187.98 ms**
+
+### Laptop
+
+|Benchmark | 16K [Laptop](#laptop) | 300K [Laptop](#laptop)
+|-|-|-|
+|  [process_eth1_data](#process_eth1_data) | 415.11 ns | 1.3387 μs |
+|  [initialize_validator_statuses](#initialize_validator_statuses) | 1.2862 ms | 46.470 ms |
+|  [process_justification](#process_justification) | 411.57 ns | 1.3773 μs |
+|  [process_crosslinks](#process_crosslinks) | 1.2308 ms | 39.095 ms |
+|  [process_rewards_and_penalties](#process_rewards_and_penalties) | 1.0781 ms | 22.406 ms |
+|  *[process_ejections](#process_ejections) | 171.52 μs | 3.0041 ms |
+|  *[process_validator_registry](#process_validator_registry) | 376.89 μs | 9.9943 ms |
+|  ^[update_active_tree_index_roots](#update_active_tree_index_roots) | 4.5167 μs | 119.122 ms |
+|  *[update_latest_slashed_balances](#update_latest_slashed_balances) | 606.76 ns | 1.3709 μs |
+|  [clean_attestations](#clean_attestations) | 28.675 μs | 248.50 μs |
+|  **[per_epoch_processing](#per_epoch_processing)** | **9.5174 ms** | **262.29 ms** |
 
 _* We did not add an ejections or registry changes. These times are best-case
 (not worst-case)._
 
+^ _This time is tree-hashing the entire active validator indices. Technically it
+doesn't need to run at all because they haven't changed since the previous
+epoch._
+
 ### Block Processing
 
-This is a "worst-case" block. It has the maximum number of all operations. Some
-care was taken to ensure the included operations are as complex as possible,
-however it was not a priority.
+The block-processing benches are tagged with the following codes:
 
-|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop)
-|-|-|-|-|-|
-|  [verify_block_signature](#verify_block_signature) | 5.3024 ms| - | 7.1359 ms  | - |
-|  [process_randao](#process_randao) | 5.2679 ms | - | 7.0675 ms | - |
-|  [process_eth1_data](#process_eth1_data) | 229.31 ns | 1.4178 μs | 330.12 ns | 1.5468 μs |
-|  [process_proposer_slashings](#process_proposer_slashings) | 37.108 ms | - | 119.46 ms | - |
-|  [process_attester_slashings](#process_attester_slashings) | 147.83 ms | - | 211.74 ms | - |
-|  [process_attestations](#process_attestations) | 193.86 ms | 309.15ms | 833.23 ms | 1.3424 s |
-|  [*process_deposits](#process_deposits) | 31.918 ms | 288.21 ms | 79.386 ms | 436.96 ms |
-|  [process_exits](#process_exits) | 18.835 ms | - | 60.163 ms | - |
-|  [process_transfers](#process_transfers) | 18.686 ms | - | 60.163 ms | - |
-|  [**per_block_processing**](#per_block_processing) | **461.65 ms** | **833.80 ms** | **1.3885 s** | **2.2294 s** |
+- **WC**: Worst-case.
+  - Maximum operations (e.g., `MAX_ATTESTATIONS` attestations, etc.)
+- **RC**: Reasonable-case
+  - 0 slashings
+  - 16 full attestations
+  - 2 deposits
+  - 2 exits
+  - 2 transfers
 
-_* Merkle roots are not verified -- this is a TODO._
+#### Desktop
+
+|Benchmark| 16K WC [Desktop](#desktop) | 300K WC [Desktop](#desktop) | 300K RC [Desktop](#desktop)
+|-|-|-|-|
+|  [verify_block_signature](#verify_block_signature) | 5.3024 ms| - | - |
+|  [process_randao](#process_randao) | 5.2679 ms | - | - |
+|  [process_eth1_data](#process_eth1_data) | 229.31 ns | 1.4178 μs | - |
+|  [process_proposer_slashings](#process_proposer_slashings) | 37.108 ms | - | 1.4005 μs
+|  [process_attester_slashings](#process_attester_slashings) | 147.83 ms | - | 1.3960 μs
+|  [process_attestations](#process_attestations) | 193.86 ms | 309.15ms | 48.02 ms
+|  [*process_deposits](#process_deposits) | 18.492 ms | - | 8.0843 ms
+|  [process_exits](#process_exits) | 18.835 ms | - | 6.6976 ms
+|  [process_transfers](#process_transfers) | 18.686 ms | - | 6.4966 ms
+|  [**per_block_processing**](#per_block_processing) | **440.63 ms** | **553.25 ms** | **79.544 ms**
+
+_Note: 16K RC per_block_processing comes in at 64.077 ms._
+
+#### Laptop
+
+|Benchmark| 16K WC [Laptop](#laptop) | 300K WC [Laptop](#laptop) | 300K RC [Laptop](#laptop)
+|-|-|-|-|
+|  [verify_block_signature](#verify_block_signature) | 7.1359 ms  | - | - |
+|  [process_randao](#process_randao) | 7.0675 ms | - | - |
+|  [process_eth1_data](#process_eth1_data) | 330.12 ns | 1.5468 μs | - |
+|  [process_proposer_slashings](#process_proposer_slashings) | 119.46 ms | - | 1.8209 μs
+|  [process_attester_slashings](#process_attester_slashings) | 211.74 ms | - | 1.8208 μs
+|  [process_attestations](#process_attestations) | 833.23 ms | 1.3424 s | 159.46 ms
+|  [*process_deposits](#process_deposits) | 60.300 ms | - | 9.7835 ms
+|  [process_exits](#process_exits) | 60.163 ms | - | 7.8856 ms
+|  [process_transfers](#process_transfers) | 60.163 ms | - | 8.2653 ms
+|  [**per_block_processing**](#per_block_processing) | **1.3885 s** | **1.819 s** | **207.07 ms**
+
+_* Merkle roots are not verified._
+
+_Note: 16K RC per_block_processing comes in at 152.70 ms._
 
 ### Cache Builds
 
-All the previous benchmarks were done with a pre-built committee cache. These
-are the times to build that cache.
+All the previous benchmarks were done with pre-built committee and pubkey
+caches. These are the times to build those caches.
 
 |Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) |
 |-|-|-|-|-|
-|  [build_previous_state_cache](#cache-builds) | 9.1979 ms | 373.84 ms | 18.480 ms | 396.56 ms |
-|  [build_current_state_cache](#cache-builds) | 9.1075 ms | 356.68 ms | 19.412 ms | 402.96 ms |
+|  [build_previous_epoch_committee_cache](#epoch-cache-builds) | 9.1979 ms | 373.84 ms | 18.480 ms | 396.56 ms |
+|  [build_current_epoch_committee_cache](#epoch-cache-builds) | 9.1075 ms | 356.68 ms | 19.412 ms | 402.96 ms |
+|  [build_pubkey_cache](#pubkey-cache-builds) | 14.874 ms | 339.41 ms | 30.178 ms | 488.15 ms |
 
 
 ### Tree Hashing
@@ -148,79 +176,32 @@ information will save time for other implementers.
 
 We found it useful to consider rewards and penalties as a map against
 `state.validator_balances`. This allowed us to very easily use
-[rayon](https://github.com/rayon-rs/rayon) to do this map concurrently. I
-imagine most other languages have an equivalent library. The specification is
-well designed for this purpose -- updating one validator's balance only mutates
-state related to that validator.
+[rayon](https://github.com/rayon-rs/rayon) to do this map concurrently. The
+specification is well designed for this purpose -- updating one validator's
+balance only mutates state related to that validator.
 
 Where we found speed improvements:
 
-- Processing the validator rewards in parallel (as mentioned earlier).
-- Obviously, removing all `O(n^2)` time blow-ups. This means using hashsets for
-	checking if a validator is a member of some subset of validators.
-- Replacing multiple calls to `inclusion_distance` with a single iteration over
-	`previous_epoch_attestations` which produces a map of `ValidatorIndex ->
-	SlotIncluded`. This shaved ~1.5 seconds from per-epoch processing.
+- Processing the validator rewards in parallel (as mentioned earlier). This
+- Removing all `~O(n^2)` time blow-ups like `inclusion_distance`.
 
 ### Per-Block Processing
 
-All notable gains here were from introducing concurrency where hashing or
+Most notable gains here were from introducing concurrency where hashing or
 signature verification is involved.
 
 We found a ~50% increase in
 processing `AttesterSlashings` by first verifying all `SlashableAttestations`
 in parallel before verifying each `AttesterSlashing`.
 
+We found some difficulties in quickly generating a `HashMap` for checking that some
+pubkey already exists in the validator registry. We found that going from our
+BLS libraries object into bytes (for hashing) was rather slow. As such, we now
+maintain a `PublicKey -> ValidatorIndex` map alongside the state.
 
 # Details
 
 ## Per-Epoch Processing
-
-## `calculate_active_validator_indices`
-
-#### Benching Setup
-
-Function is run with the following inputs:
-
-- All validators are active.
-
-#### Function Description
-
-1. Iterates the validator registry and returns all active validators.
-
-
-
-
-## `calculate_current_total_balance`
-
-#### Benching Setup
-
-Function is run with the following inputs:
-
-- All validators are active.
-
-#### Function Description
-
-1. Iterates validator balances and sums the effective balances for each active
-   validator (active validators is pre-computed).
-
-
-
-## `calculate_previous_total_balance`
-
-#### Benching Setup
-
-Function is run with the following inputs:
-
-- All validators are active.
-
-#### Function Description
-
-1. Determines the active validators for the previous epoch.
-1. Iterates validator balances and sums the effective balances for each active
-   validator.
-
-
 
 ## `process_eth1_data`
 
@@ -235,8 +216,7 @@ Function is run with the following inputs:
 1. Attempts to find an `Eth1Data` with a super-majority vote and update the state.
 
 
-
-## `calculate_attester_sets`
+## `initialize_validator_statuses`
 
 #### Benching Setup
 
@@ -247,8 +227,13 @@ Function is run with the following inputs:
 
 #### Function Description
 
-Builds an empty `Attesters` struct which contains a hashset of participating
-validator indices and a total balances value for each of the following groups:
+Performs a loop over all validators and determines
+
+- Active validators
+- Current balances
+- Previous balances
+
+Then loops through all the attestations and determines:
 
 - Current epoch attesters
 - Current epoch boundary attesters
@@ -256,11 +241,7 @@ validator indices and a total balances value for each of the following groups:
 - Previous epoch boundary attesters
 - Previous epoch head attesters
 
-Iterates through each `PendingAttestation` in the state, builds a list of all
-participants in that attestation and obtains their total balance. It then
-analyses the attestation and updates the appropriate `Attesters` struct.
-
-
+This info is used later on during epoch processing.
 
 ## `process_justification`
 
@@ -310,17 +291,17 @@ Function is run with the following inputs:
 
 1. Does some misc setups (determine latest epoch attestations, reward
    quotients, etc).
+1. Does as a loop across all participants in all committees in the previous
+   epoch and determines if/how they should be rewarded for winning root
+   participation.
 1. Does an parallel map across `state.validator_balances` and applies the
    [justification and
-   finalization](https://github.com/ethereum/eth2.0-specs/blob/0.4.0/specs/core/0_beacon-chain.md#justification-and-finalization)
-   and [attestation
+   finalization](https://github.com/ethereum/eth2.0-specs/blob/0.4.0/specs/core/0_beacon-chain.md#justification-and-finalization),
+   [attestation
    inclusion](https://github.com/ethereum/eth2.0-specs/blob/0.4.0/specs/core/0_beacon-chain.md#justification-and-finalization)
-   rewards.
-1. Loops (in series) through all slots in the previous epoch and applies the
-   [crosslinks](https://github.com/ethereum/eth2.0-specs/blob/0.4.0/specs/core/0_beacon-chain.md#justification-and-finalization)
-   rewards to each validator. Uses the previously generated `Shard ->
-   WinningRoot` hashmap for memoized `winning_root` lookups.
-
+   and [crosslinks](https://github.com/ethereum/eth2.0-specs/blob/v0.4.0/specs/core/0_beacon-chain.md#crosslinks-1) rewards.
+1. Loops through all validators and rewards the block proposer if they included
+   a block.
 
 
 ## `process_ejections`
@@ -552,8 +533,8 @@ Function is run with the following inputs:
 
 1. Partially-verifies each deposit in parallel.
 1. If all were valid, performs the following actions sequentially:
-	1. Builds a hashmap of `PublicKey -> ValidatorIndex` for look-up of pre-existing
-		validators.
+	1. Updates the already-built `PublicKey -> ValidatorIndex` map (for look-up of pre-existing
+		validators).
 	1. Verifies the deposit index against `state.deposit_index`.
 	1. Loads the validator index (if any) from the hashmap.
 	1. If validator exists, checks withdrawal credentials and updates balance.
@@ -618,7 +599,7 @@ execution returns immediately.
 1. Processes exits.
 1. Processes transfers.
 
-## Cache Builds
+## Epoch Cache Builds
 
 Our epoch caches are on a per-epoch basis and contain:
 
@@ -627,6 +608,16 @@ Our epoch caches are on a per-epoch basis and contain:
 	CommitteeIndex)` for easy access of a validator's attestation duties.
 - A map of `Shard -> (EpochCommitteesIndex, SlotCommitteesIndex)` for easy
 	access of a shard's committee.
+
+## Pubkey Cache Builds
+
+The pubkey cache is a map of `PublicKey -> ValidatorIndex`. It is used to speed
+up deposit processing (checking to see if a pubkey exists in the validator
+registry).
+
+It is presently very slow because we need to convert our BLS libraries
+`PublicKey` struct into bytes. We have chosen to use uncompressed bytes for
+the key of the hashmap as it is quicker.
 
 ## Tree Hashing
 
