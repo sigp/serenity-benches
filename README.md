@@ -135,7 +135,7 @@ _Note: 16K RC per_block_processing comes in at 64.077 ms._
 |  [*process_deposits](#process_deposits) | 60.300 ms | - | 9.7835 ms | 23.987 ms | 74.589 ms |
 |  [process_exits](#process_exits) | 60.163 ms | - | 7.8856 ms - | - |
 |  [process_transfers](#process_transfers) | 60.163 ms | - | 8.2653 ms | - | - |
-|  [**per_block_processing**](#per_block_processing) | **1.3885 s** | **1.819 s** | **207.07 ms** | **1.5126 s** | 12.494 s |
+|  [**per_block_processing**](#per_block_processing) | **1.3885 s** | **1.819 s** | **207.07 ms** | **1.5126 s** | **12.494 s** |
 
 _* Merkle roots are not verified._
 
