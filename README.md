@@ -683,7 +683,7 @@ You can run these benchmarks on your local machine if you're an advanced user. T
 
 ### 1. Setup the repo
 
-1. Clone the https://github.com/sigp/lighthouse repo at `master`.
+1. Clone the https://github.com/sigp/lighthouse repo at [`sane-case`](https://github.com/sigp/lighthouse/tree/sane-case).
 1. Follow the [Running](https://github.com/sigp/lighthouse#running)
    instructions. You just need a standard Rust setup (`rustup`) and
    additionally `clang` and `protobuf`.
