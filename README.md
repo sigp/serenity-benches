@@ -96,9 +96,9 @@ epoch._
 
 The block-processing benches are tagged with the following codes:
 
-- **WC**: Worst-case.
+- **BIG**: Worst-case.
   - Maximum operations (e.g., `MAX_ATTESTATIONS` attestations, etc.)
-- **RC**: Reasonable-case
+- **SML**: Reasonable-case
   - 0 slashings
   - 16 full attestations
   - 2 deposits
@@ -107,7 +107,7 @@ The block-processing benches are tagged with the following codes:
 
 #### Desktop
 
-|Benchmark| 16K WC [Desktop](#desktop) | 300K WC [Desktop](#desktop) | 300K RC [Desktop](#desktop) | 4M RC [Desktop](#desktop) | 4M WC [Desktop](#desktop)
+|Benchmark| 16K BIG [Desktop](#desktop) | 300K BIG [Desktop](#desktop) | 300K SML [Desktop](#desktop) | 4M SML [Desktop](#desktop) | 4M BIG [Desktop](#desktop)
 |-|-|-|-|-|-|
 |  [verify_block_signature](#verify_block_signature) | 5.3024 ms| - | - | - | - |
 |  [process_randao](#process_randao) | 5.2679 ms | - | - | - | - |
@@ -120,11 +120,11 @@ The block-processing benches are tagged with the following codes:
 |  [process_transfers](#process_transfers) | 18.686 ms | - | 6.4966 ms | - | - |
 |  [**per_block_processing**](#per_block_processing) | **440.63 ms** | **553.25 ms** | **79.544 ms** | **433.55 ms** | **2.9739 s**
 
-_Note: 16K RC per_block_processing comes in at 64.077 ms._
+_Note: 16K SML per_block_processing comes in at 64.077 ms._
 
 #### Laptop
 
-|Benchmark| 16K WC [Laptop](#laptop) | 300K WC [Laptop](#laptop) | 300K RC [Laptop](#laptop) | 4M RC [Laptop](#laptop) | 4M WC [Laptop](#laptop)
+|Benchmark| 16K BIG [Laptop](#laptop) | 300K BIG [Laptop](#laptop) | 300K SML [Laptop](#laptop) | 4M SML [Laptop](#laptop) | 4M BIG [Laptop](#laptop)
 |-|-|-|-|-|-|
 |  [verify_block_signature](#verify_block_signature) | 7.1359 ms  | - | - | - | - |
 |  [process_randao](#process_randao) | 7.0675 ms | - | - | - | - |
@@ -139,9 +139,9 @@ _Note: 16K RC per_block_processing comes in at 64.077 ms._
 
 _* Merkle roots are not verified._
 
-_Note: 16K RC per_block_processing comes in at 152.70 ms._
+_Note: 16K SML per_block_processing comes in at 152.70 ms._
 
-_Note: 4M WC per_block_processing comes in at ~12 s, where 11.920 s is
+_Note: 4M BIG per_block_processing comes in at ~12 s, where 11.920 s is
 attestation verification._
 
 ### Cache Builds
@@ -165,7 +165,7 @@ This is a full tree-hash without caching.
 |Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop)
 |-|-|-|-|-|
 |  [tree_hash_state](#tree_hash_state) | 81.444 ms | 1.3884 s | 121.80 ms | 1.8679 s |
-|  [tree_hash_block](#tree_hash_block) | 3.0570 ms (WC) | 3.4629 ms (WC) | 4.5881 ms (WC) | 4.7180 ms (WC) |
+|  [tree_hash_block](#tree_hash_block) | 3.0570 ms (BIG) | 3.4629 ms (BIG) | 4.5881 ms (BIG) | 4.7180 ms (BIG) |
 
 
 ### BLS
