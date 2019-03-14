@@ -123,22 +123,25 @@ _Note: 16K RC per_block_processing comes in at 64.077 ms._
 
 #### Laptop
 
-|Benchmark| 16K WC [Laptop](#laptop) | 300K WC [Laptop](#laptop) | 300K RC [Laptop](#laptop) | 4M RC [Laptop](#laptop)
-|-|-|-|-|-|
-|  [verify_block_signature](#verify_block_signature) | 7.1359 ms  | - | - | - |
-|  [process_randao](#process_randao) | 7.0675 ms | - | - | - |
-|  [process_eth1_data](#process_eth1_data) | 330.12 ns | 1.5468 μs | - | 4.2278 μs |
-|  [process_proposer_slashings](#process_proposer_slashings) | 119.46 ms | - | 1.8209 μs | - |
-|  [process_attester_slashings](#process_attester_slashings) | 211.74 ms | - | 1.8208 μs | - |
-|  [process_attestations](#process_attestations) | 833.23 ms | 1.3424 s | 159.46 ms | 1.4417 s |
-|  [*process_deposits](#process_deposits) | 60.300 ms | - | 9.7835 ms | 23.987 ms |
-|  [process_exits](#process_exits) | 60.163 ms | - | 7.8856 ms - |
-|  [process_transfers](#process_transfers) | 60.163 ms | - | 8.2653 ms | - |
-|  [**per_block_processing**](#per_block_processing) | **1.3885 s** | **1.819 s** | **207.07 ms** | **1.5126 s** |
+|Benchmark| 16K WC [Laptop](#laptop) | 300K WC [Laptop](#laptop) | 300K RC [Laptop](#laptop) | 4M RC [Laptop](#laptop) | 4M WC [Laptop](#laptop)
+|-|-|-|-|-|-|
+|  [verify_block_signature](#verify_block_signature) | 7.1359 ms  | - | - | - | - |
+|  [process_randao](#process_randao) | 7.0675 ms | - | - | - | - |
+|  [process_eth1_data](#process_eth1_data) | 330.12 ns | 1.5468 μs | - | 4.2278 μs | - |
+|  [process_proposer_slashings](#process_proposer_slashings) | 119.46 ms | - | 1.8209 μs | - | - |
+|  [process_attester_slashings](#process_attester_slashings) | 211.74 ms | - | 1.8208 μs | - | - |
+|  [process_attestations](#process_attestations) | 833.23 ms | 1.3424 s | 159.46 ms | 1.4417 s | 11.920 s |
+|  [*process_deposits](#process_deposits) | 60.300 ms | - | 9.7835 ms | 23.987 ms | 74.589 ms |
+|  [process_exits](#process_exits) | 60.163 ms | - | 7.8856 ms - | - |
+|  [process_transfers](#process_transfers) | 60.163 ms | - | 8.2653 ms | - | - |
+|  [**per_block_processing**](#per_block_processing) | **1.3885 s** | **1.819 s** | **207.07 ms** | **1.5126 s** | 12.494 s |
 
 _* Merkle roots are not verified._
 
 _Note: 16K RC per_block_processing comes in at 152.70 ms._
+
+_Note: 4M WC per_block_processing comes in at ~12 s, where 11.920 s is
+attestation verification._
 
 ### Cache Builds
 
@@ -147,8 +150,7 @@ caches. These are the times to build those caches.
 
 |Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) | 4M [Desktop](#desktop)
 |-|-|-|-|-|-|
-|  [build_previous_epoch_committee_cache](#epoch-cache-builds) | 9.1979 ms | 373.84 ms | 18.480 ms | 396.56 ms | 3.7845 s |
-|  [build_current_epoch_committee_cache](#epoch-cache-builds) | 9.1075 ms | 356.68 ms | 19.412 ms | 402.96 ms | 3.9832 s |
+|  [build_epoch_committee_cache](#epoch-cache-builds) | 7.4939 ms | 264.02 ms | 19.412 ms | 402.96 ms | 3.9832 s |
 |  [build_pubkey_cache](#pubkey-cache-builds) | 14.874 ms | 339.41 ms | 30.178 ms | 488.15 ms | 5.0710 s |
 
 _Note: I once benched shuffling 4M validators at 1.2s. Epoch cache build times
