@@ -159,10 +159,10 @@ seem unreasonably high, I suspect they can be improved.._
 
 This is a full tree-hash without caching.
 
-|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) | 4M [Desktop](#desktop) |
-|-|-|-|-|-|-|
+|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop)
+|-|-|-|-|-|
 |  [tree_hash_state](#tree_hash_state) | 81.444 ms | 1.3884 s | 121.80 ms | 1.8679 s |
-|  [tree_hash_block](#tree_hash_block) | 3.0570 ms (WC) | 3.4629 ms (WC) | 4.5881 ms (WC) | 4.7180 ms (WC) | 1.7920 ms (RC)
+|  [tree_hash_block](#tree_hash_block) | 3.0570 ms (WC) | 3.4629 ms (WC) | 4.5881 ms (WC) | 4.7180 ms (WC) |
 
 
 ### BLS
