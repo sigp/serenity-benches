@@ -435,8 +435,6 @@ Function is run with the following inputs:
 
 #### Function Description
 
-[Source code](https://github.com/sigp/lighthouse/blob/3f988493622ab0221649b91682e4ad8296f86542/eth2/state_processing/src/per_block_processing.rs#L100)
-
 1. Determines the slot's block producer.
 1. Produces a signed root of the block's `Proposal`.
 1. Verifies the block producer signed the proposal root.
@@ -450,8 +448,6 @@ Function is run with the following inputs:
 - A valid `block.randao_reveal`.
 
 #### Function Description
-
-[Source code](https://github.com/sigp/lighthouse/blob/timing-report/eth2/state_processing/src/per_block_processing.rs#L134)
 
 1. Determines the block proposer for the present slot.
 1. Verifies that `randao_reveal` is the proposer's signature across
@@ -468,8 +464,6 @@ Function is run with the following inputs:
 
 #### Function Description
 
-[Source code](https://github.com/sigp/lighthouse/blob/3f988493622ab0221649b91682e4ad8296f86542/eth2/state_processing/src/per_block_processing.rs#L168)
-
 1. Searches for a matching `Eth1DataVote` in the state.
 1. If exists, increments the `vote` for that data. Otherwise adds a new
 	`Eth1DataVote`.
@@ -484,8 +478,6 @@ Function is run with the following inputs:
 
 #### Function Description
 
-[Source code](https://github.com/sigp/lighthouse/blob/timing-report/eth2/state_processing/src/per_block_processing.rs#L226)
-
 1. Verifies each `ProposerSlashing` in parallel.
 1. If all are valid, slashes each validator sequentially.
 
@@ -499,8 +491,6 @@ Function is run with the following inputs:
 - Each `AttesterSlashing` has `MAX_INDICES_PER_SLASHABLE_VOTE` indices.
 
 #### Function Description
-
-[Source code](https://github.com/sigp/lighthouse/blob/3f988493622ab0221649b91682e4ad8296f86542/eth2/state_processing/src/per_block_processing.rs#L258)
 
 1. Builds a list of references to each `SlashableAttestation` in the
 	`AttesterSlashings` (there are two in each).
@@ -523,8 +513,6 @@ Function is run with the following inputs:
 
 #### Function Description
 
-[Source code](https://github.com/sigp/lighthouse/blob/timing-report/eth2/state_processing/src/per_block_processing.rs#L316)
-
 1. Ensures the previous epoch cache is built (it is always built for these
 	benches).
 1. Verifies each `Attestation` in parallel.
@@ -536,8 +524,6 @@ Function is run with the following inputs:
 Function is run with the following inputs:
 
 - `MAX_DEPOSITS` count valid `Deposits`.
-
-[Source code](https://github.com/sigp/lighthouse/blob/timing-report/eth2/state_processing/src/per_block_processing.rs#L357)
 
 #### Function Description
 
@@ -560,8 +546,6 @@ Function is run with the following inputs:
 
 #### Function Description
 
-[Source code](https://github.com/sigp/lighthouse/blob/timing-report/eth2/state_processing/src/per_block_processing.rs#L426)
-
 1. Verifies each exit in parallel.
 1. Updates the state sequentially.
 
@@ -577,8 +561,6 @@ Function is run with the following inputs:
 
 #### Function Description
 
-[Source code](https://github.com/sigp/lighthouse/blob/timing-report/eth2/state_processing/src/per_block_processing.rs#L458)
-
 1. Verifies each transfer in parallel.
 1. Updates the state sequentially.
 
@@ -591,8 +573,6 @@ Function is run with the following inputs:
 	same characteristics as the `process_...` functions above.
 
 #### Function Description
-
-[Source code](https://github.com/sigp/lighthouse/blob/timing-report/eth2/state_processing/src/per_block_processing.rs#L39)
 
 If any of the following functions return an error (e.g., invalid object)
 execution returns immediately.
