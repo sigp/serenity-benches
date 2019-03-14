@@ -36,6 +36,7 @@ benchmarks locally.
 	scenario -- we will likely need to adjust our optimisations to suit a more
 	diverse set of scenarios.
 - There is no tree hashing caching in any tests.
+- The ordering of some of the columns is a little odd, sorry.
 
 ## Results:
 
