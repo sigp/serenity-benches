@@ -3,8 +3,9 @@
 This document contains the results of running benchmarks on the
 [Lighthouse](http://github.com/sigp/ligthouse) Eth2.0 client.
 
-For each benchmark, it contains a description of the parameters supplied to the
-benchmark and the workings of the function being metered.
+Included alongside the benchmarks are descriptions of the functions being
+measured, lessons learned about optimising and instructions on how to run the
+benchmarks locally.
 
 ## Table of Contents:
 
@@ -19,7 +20,8 @@ benchmark and the workings of the function being metered.
 
 - All benchmarks were performed using the
 	[Lighthouse](http://github.com/sigp/ligthouse) Eth2 client (Rust).
-- The majority of these are stress-tests -- they're worst case scenarios.
+- The majority of these benches are stress-tests (worst case
+  scenarios).
 - Benchmarks are not limited to a single-core -- concurrent functions will run
 	across multiple cores.
 - These benchmarks are up-to-date with spec [v0.4.0](https://github.com/ethereum/eth2.0-specs/tree/v0.4.0).
@@ -33,6 +35,7 @@ benchmark and the workings of the function being metered.
 - Our optimisations are currently focussed towards an all-vaildators-active
 	scenario -- we will likely need to adjust our optimisations to suit a more
 	diverse set of scenarios.
+- There is no tree hashing caching in any tests.
 
 ## Results:
 
@@ -41,6 +44,7 @@ validator count is changed. The following codes map to each scenario:
 
 - **16K**: 16,384 validators (all active).
 - **300K**: 300,032 validators (all active).
+- **4M**: 4,000,000 validators (all active).
 
 _Note: when a result is `-` it means the value has not changed since the
 benchmark with the next smallest validator count. E.g., the value for 300k
@@ -102,35 +106,35 @@ The block-processing benches are tagged with the following codes:
 
 #### Desktop
 
-|Benchmark| 16K WC [Desktop](#desktop) | 300K WC [Desktop](#desktop) | 300K RC [Desktop](#desktop)
-|-|-|-|-|
-|  [verify_block_signature](#verify_block_signature) | 5.3024 ms| - | - |
-|  [process_randao](#process_randao) | 5.2679 ms | - | - |
-|  [process_eth1_data](#process_eth1_data) | 229.31 ns | 1.4178 μs | - |
-|  [process_proposer_slashings](#process_proposer_slashings) | 37.108 ms | - | 1.4005 μs
-|  [process_attester_slashings](#process_attester_slashings) | 147.83 ms | - | 1.3960 μs
-|  [process_attestations](#process_attestations) | 193.86 ms | 309.15ms | 48.02 ms
-|  [*process_deposits](#process_deposits) | 18.492 ms | - | 8.0843 ms
-|  [process_exits](#process_exits) | 18.835 ms | - | 6.6976 ms
-|  [process_transfers](#process_transfers) | 18.686 ms | - | 6.4966 ms
-|  [**per_block_processing**](#per_block_processing) | **440.63 ms** | **553.25 ms** | **79.544 ms**
+|Benchmark| 16K WC [Desktop](#desktop) | 300K WC [Desktop](#desktop) | 300K RC [Desktop](#desktop) | 4M RC [Desktop](#desktop) | 4M WC [Desktop](#desktop)
+|-|-|-|-|-|-|
+|  [verify_block_signature](#verify_block_signature) | 5.3024 ms| - | - | - | - |
+|  [process_randao](#process_randao) | 5.2679 ms | - | - | - | - |
+|  [process_eth1_data](#process_eth1_data) | 229.31 ns | 1.4178 μs | - | - | -|
+|  [process_proposer_slashings](#process_proposer_slashings) | 37.108 ms | - | 1.4005 μs | - | - |
+|  [process_attester_slashings](#process_attester_slashings) | 147.83 ms | - | 1.3960 μs | - | - |
+|  [process_attestations](#process_attestations) | 193.86 ms | 309.15ms | 48.02 ms | 393.63 ms | 2.7259 s
+|  [*process_deposits](#process_deposits) | 18.492 ms | - | 8.0843 ms | 20.233 ms | 30.160 s |
+|  [process_exits](#process_exits) | 18.835 ms | - | 6.6976 ms | - | - |
+|  [process_transfers](#process_transfers) | 18.686 ms | - | 6.4966 ms | - | - |
+|  [**per_block_processing**](#per_block_processing) | **440.63 ms** | **553.25 ms** | **79.544 ms** | **433.55 ms** | **2.9739 s**
 
 _Note: 16K RC per_block_processing comes in at 64.077 ms._
 
 #### Laptop
 
-|Benchmark| 16K WC [Laptop](#laptop) | 300K WC [Laptop](#laptop) | 300K RC [Laptop](#laptop)
-|-|-|-|-|
-|  [verify_block_signature](#verify_block_signature) | 7.1359 ms  | - | - |
-|  [process_randao](#process_randao) | 7.0675 ms | - | - |
-|  [process_eth1_data](#process_eth1_data) | 330.12 ns | 1.5468 μs | - |
-|  [process_proposer_slashings](#process_proposer_slashings) | 119.46 ms | - | 1.8209 μs
-|  [process_attester_slashings](#process_attester_slashings) | 211.74 ms | - | 1.8208 μs
-|  [process_attestations](#process_attestations) | 833.23 ms | 1.3424 s | 159.46 ms
-|  [*process_deposits](#process_deposits) | 60.300 ms | - | 9.7835 ms
-|  [process_exits](#process_exits) | 60.163 ms | - | 7.8856 ms
-|  [process_transfers](#process_transfers) | 60.163 ms | - | 8.2653 ms
-|  [**per_block_processing**](#per_block_processing) | **1.3885 s** | **1.819 s** | **207.07 ms**
+|Benchmark| 16K WC [Laptop](#laptop) | 300K WC [Laptop](#laptop) | 300K RC [Laptop](#laptop) | 4M RC [Laptop](#laptop)
+|-|-|-|-|-|
+|  [verify_block_signature](#verify_block_signature) | 7.1359 ms  | - | - | - |
+|  [process_randao](#process_randao) | 7.0675 ms | - | - | - |
+|  [process_eth1_data](#process_eth1_data) | 330.12 ns | 1.5468 μs | - | 4.2278 μs |
+|  [process_proposer_slashings](#process_proposer_slashings) | 119.46 ms | - | 1.8209 μs | - |
+|  [process_attester_slashings](#process_attester_slashings) | 211.74 ms | - | 1.8208 μs | - |
+|  [process_attestations](#process_attestations) | 833.23 ms | 1.3424 s | 159.46 ms | 1.4417 s |
+|  [*process_deposits](#process_deposits) | 60.300 ms | - | 9.7835 ms | 23.987 ms |
+|  [process_exits](#process_exits) | 60.163 ms | - | 7.8856 ms - |
+|  [process_transfers](#process_transfers) | 60.163 ms | - | 8.2653 ms | - |
+|  [**per_block_processing**](#per_block_processing) | **1.3885 s** | **1.819 s** | **207.07 ms** | **1.5126 s** |
 
 _* Merkle roots are not verified._
 
@@ -141,21 +145,24 @@ _Note: 16K RC per_block_processing comes in at 152.70 ms._
 All the previous benchmarks were done with pre-built committee and pubkey
 caches. These are the times to build those caches.
 
-|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) |
-|-|-|-|-|-|
-|  [build_previous_epoch_committee_cache](#epoch-cache-builds) | 9.1979 ms | 373.84 ms | 18.480 ms | 396.56 ms |
-|  [build_current_epoch_committee_cache](#epoch-cache-builds) | 9.1075 ms | 356.68 ms | 19.412 ms | 402.96 ms |
-|  [build_pubkey_cache](#pubkey-cache-builds) | 14.874 ms | 339.41 ms | 30.178 ms | 488.15 ms |
+|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) | 4M [Desktop](#desktop)
+|-|-|-|-|-|-|
+|  [build_previous_epoch_committee_cache](#epoch-cache-builds) | 9.1979 ms | 373.84 ms | 18.480 ms | 396.56 ms | 3.7845 s |
+|  [build_current_epoch_committee_cache](#epoch-cache-builds) | 9.1075 ms | 356.68 ms | 19.412 ms | 402.96 ms | 3.9832 s |
+|  [build_pubkey_cache](#pubkey-cache-builds) | 14.874 ms | 339.41 ms | 30.178 ms | 488.15 ms | 5.0710 s |
+
+_Note: I once benched shuffling 4M validators at 1.2s. Epoch cache build times
+seem unreasonably high, I suspect they can be improved.._
 
 
 ### Tree Hashing
 
 This is a full tree-hash without caching.
 
-|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) |
-|-|-|-|-|-|
+|Benchmark| 16K [Desktop](#desktop) | 300K [Desktop](#desktop) | 16K [Laptop](#laptop) | 300K [Laptop](#laptop) | 4M [Desktop](#desktop) |
+|-|-|-|-|-|-|
 |  [tree_hash_state](#tree_hash_state) | 81.444 ms | 1.3884 s | 121.80 ms | 1.8679 s |
-|  [tree_hash_block](#tree_hash_block) | 3.0570 ms | 3.4629 ms | 4.5881 ms | 4.7180 ms |
+|  [tree_hash_block](#tree_hash_block) | 3.0570 ms (WC) | 3.4629 ms (WC) | 4.5881 ms (WC) | 4.7180 ms (WC) | 1.7920 ms (RC)
 
 
 ### BLS
